@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "case/chatOL/routers"
+	_ "chatOL/routers"
 
 	"github.com/astaxie/beego"
 )
