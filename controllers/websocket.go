@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"chatOL/models"
+	"encoding/json"
 	"net/http"
 
 	"github.com/astaxie/beego"
@@ -19,6 +21,7 @@ func (this *WebSocketController) Get() {
 	}
 	this.TplName = "websocket.html"
 	this.Data["UserName"] = uname
+	this.Data["IsWebSocket"] = true
 }
 
 func (this *WebSocketController) Join() {
@@ -40,5 +43,29 @@ func (this *WebSocketController) Join() {
 	Join(uname, ws)
 	defer Leave(uname)
 
-	//
+	//接收消息
+	for {
+		_, p, err := ws.ReadMessage()
+		if err != nil {
+			return
+		}
+		publish <- newEvent(models.EVENT_MESSAGE, uname, string(p))
+	}
+}
+
+func broadcastWebsocket(event models.Event) {
+	data, err := json.Marshal(event)
+	if err != nil {
+		beego.Error("fail to marshal event:", err)
+		return
+	}
+
+	for sub := subscribers.Front(); sub != nil; sub = sub.Next() {
+		ws := sub.Value.(Subscriber).Conn
+		if ws != nil {
+			if ws.WriteMessage(websocket.TextMessage, data) != nil {
+				unsubscribe <- sub.Value.(Subscriber).Name
+			}
+		}
+	}
 }

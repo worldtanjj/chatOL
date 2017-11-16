@@ -1,7 +1,7 @@
 var socket
 $(document).ready(function () {
     //create socket
-    socket = new WebSocket("ws://" + window.location.href + "ws/join?user=" + $('#uname').text());
+    socket = new WebSocket("ws://" + window.location.host + "/ws/join?user=" + $('#uname').text());
     socket.onmessage = function (e) {
         var data = JSON.parse(e.data)
         console.log(data)
