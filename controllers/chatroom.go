@@ -46,7 +46,7 @@ func chatroom() {
 	for {
 		select {
 		case sub := <-subscribe:
-			if isUserExist(subscribers, sub.Name) {
+			if !isUserExist(subscribers, sub.Name) {
 				subscribers.PushBack(sub)
 				publish <- newEvent(models.EVENT_JOIN, sub.Name, "")
 				beego.Info("New User:", sub.Name)
